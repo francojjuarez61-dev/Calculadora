@@ -10,11 +10,8 @@
     :root{
       --bg1:#0b1220;
       --bg2:#1b2a4a;
-      --bg3:#8b3bff;
-      --bg4:#23d5ab;
 
       --glass: rgba(255,255,255,.12);
-      --glass2: rgba(255,255,255,.08);
       --stroke: rgba(255,255,255,.18);
 
       --text: rgba(255,255,255,.92);
@@ -25,8 +22,6 @@
 
       --radius-xl: 28px;
       --radius-lg: 22px;
-      --radius-md: 18px;
-      --radius-sm: 14px;
     }
 
     *{ box-sizing:border-box; }
@@ -42,23 +37,21 @@
       overflow-x:hidden;
     }
 
-    /* “liquid” animated blobs */
+    /* “liquid” blobs */
     .blob{
       position: fixed;
-      inset:auto;
       width: 520px;
       height: 520px;
       filter: blur(40px);
       opacity:.55;
       border-radius: 50%;
       z-index:-1;
-      transform: translate3d(0,0,0);
       animation: float 14s ease-in-out infinite;
+      transform: translate3d(0,0,0);
     }
     .blob.b1{ left:-220px; top:-180px; background: radial-gradient(circle at 30% 30%, rgba(139,59,255,.95), rgba(139,59,255,0)); }
     .blob.b2{ right:-260px; top:120px; background: radial-gradient(circle at 30% 30%, rgba(35,213,171,.9), rgba(35,213,171,0)); animation-delay: -4s;}
     .blob.b3{ left:10%; bottom:-300px; background: radial-gradient(circle at 30% 30%, rgba(255,90,95,.75), rgba(255,90,95,0)); animation-delay: -7s;}
-
     @keyframes float{
       0%{ transform: translate(0,0) scale(1); }
       50%{ transform: translate(30px, -20px) scale(1.05); }
@@ -175,9 +168,7 @@
       touch-action: manipulation;
     }
     .btn:active{ transform: scale(.98); }
-    .btn.primary{
-      background: rgba(255,255,255,.18);
-    }
+    .btn.primary{ background: rgba(255,255,255,.18); }
     .btn.danger{
       background: rgba(255,90,95,.18);
       border-color: rgba(255,90,95,.28);
@@ -205,11 +196,13 @@
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
       overflow:hidden;
-      min-height: 132px;
       display:flex;
       flex-direction:column;
-      justify-content:space-between;
-      gap: 10px;
+      gap: 12px;
+      min-height: 0; /* FIX: evita layouts raros */
+      user-select:none;
+      -webkit-user-select:none;
+      touch-action: manipulation;
     }
     .tile::before{
       content:"";
@@ -225,8 +218,9 @@
       position:relative;
       display:flex;
       justify-content:space-between;
-      align-items:flex-start;
+      align-items:center;
       gap: 10px;
+      padding-right: 8px;
     }
 
     .amount{
@@ -257,17 +251,18 @@
       font-size: 11px;
     }
 
+    /* FIX: controles en fila limpia (sin superposición) */
     .controls{
       position:relative;
-      display:flex;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
       align-items:center;
-      justify-content:space-between;
     }
 
     .mini{
-      width: 52px;
-      height: 52px;
+      width: 100%;
+      height: 54px;
       border-radius: 18px;
       border: 1px solid rgba(255,255,255,.18);
       background: rgba(0,0,0,.16);
@@ -277,31 +272,55 @@
       display:flex;
       align-items:center;
       justify-content:center;
+      box-shadow: 0 10px 24px rgba(0,0,0,.22);
       user-select:none;
       -webkit-user-select:none;
       touch-action: manipulation;
-      box-shadow: 0 10px 24px rgba(0,0,0,.22);
     }
     .mini:active{ transform: scale(.97); background: rgba(255,255,255,.18); }
 
-    .remove{
+    /* Eliminar estilo iPhone: aparece solo en modo edición (long press) */
+    .delete-badge{
       position:absolute;
-      right: 10px;
-      bottom: 10px;
-      padding: 8px 10px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,90,95,.28);
-      background: rgba(255,90,95,.18);
-      color: rgba(255,255,255,.92);
+      left: 10px;
+      top: 10px;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,90,95,.35);
+      background: rgba(255,90,95,.30);
+      color: rgba(255,255,255,.95);
       font-weight: 900;
-      font-size: 12px;
-      letter-spacing: .01em;
-      user-select:none;
-      -webkit-user-select:none;
-      touch-action: manipulation;
+      font-size: 18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow: 0 12px 28px rgba(0,0,0,.25);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      opacity: 0;
+      transform: scale(.92);
+      pointer-events:none;
+      transition: opacity .18s ease, transform .18s ease;
+      z-index: 5;
     }
-    .remove:active{ transform: scale(.98); }
 
+    /* Estado global de edición */
+    .edit-mode .tile{
+      animation: wiggle .18s ease-in-out infinite alternate;
+    }
+    @keyframes wiggle{
+      from{ transform: rotate(-0.6deg); }
+      to{ transform: rotate(0.6deg); }
+    }
+
+    .edit-mode .delete-badge{
+      opacity: 1;
+      transform: scale(1);
+      pointer-events:auto;
+    }
+
+    /* Bottom sheet */
     .sheet-backdrop{
       position: fixed;
       inset: 0;
@@ -430,7 +449,7 @@
   <div class="blob b2"></div>
   <div class="blob b3"></div>
 
-  <div class="wrap">
+  <div class="wrap" id="appWrap">
     <div class="topbar">
       <div class="title">
         <h1>QuickGlass Calc</h1>
@@ -445,7 +464,7 @@
           <span id="itemsInfo">0 toques</span>
         </div>
         <div class="total" id="total">$0</div>
-        <div class="hint">Tus botones se guardan en este iPhone (localStorage).</div>
+        <div class="hint">Tip: mantené apretado cualquier botón para entrar en “modo borrar”.</div>
       </div>
 
       <div class="sum-actions">
@@ -482,26 +501,23 @@
   <div class="toast" id="toast">Listo</div>
 
   <script>
-    // -----------------------------
-    // QuickGlass Calc (single-file)
-    // -----------------------------
+    const STORAGE_KEY = "qgc_buttons_v2";
+    const STORAGE_COUNTS_KEY = "qgc_counts_v2";
 
-    const STORAGE_KEY = "qgc_buttons_v1";
-    const STORAGE_COUNTS_KEY = "qgc_counts_v1";
-
-    // Botones: [{id, amount}]
-    // Conteos: { [id]: number }
     let buttons = [];
     let counts = {};
 
+    const $wrap = document.getElementById("appWrap");
     const $grid = document.getElementById("grid");
     const $total = document.getElementById("total");
     const $itemsInfo = document.getElementById("itemsInfo");
 
     const $sheetBackdrop = document.getElementById("sheetBackdrop");
     const $amountInput = document.getElementById("amountInput");
-
     const $toast = document.getElementById("toast");
+
+    let editMode = false;
+    let editModeTimer = null;
 
     function showToast(msg){
       $toast.textContent = msg;
@@ -519,9 +535,7 @@
     }
 
     function parseAmount(text){
-      // acepta "12.000" "12,000" "12000" "$ 12.000"
-      const clean = String(text || "")
-        .replace(/[^\d]/g, ""); // deja solo dígitos
+      const clean = String(text || "").replace(/[^\d]/g, "");
       const val = parseInt(clean, 10);
       return Number.isFinite(val) ? val : 0;
     }
@@ -529,6 +543,9 @@
     function uid(){
       return "b_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
     }
+
+    function saveButtons(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(buttons)); }
+    function saveCounts(){ localStorage.setItem(STORAGE_COUNTS_KEY, JSON.stringify(counts)); }
 
     function load(){
       try{
@@ -538,7 +555,6 @@
         if(raw){
           buttons = JSON.parse(raw) || [];
         } else {
-          // Default predefinidos
           buttons = [
             { id: uid(), amount: 12000 },
             { id: uid(), amount: 15000 },
@@ -546,23 +562,19 @@
             { id: uid(), amount: 8000  },
             { id: uid(), amount: 2000  },
           ];
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(buttons));
+          saveButtons();
         }
 
         counts = rawCounts ? (JSON.parse(rawCounts) || {}) : {};
 
-        // Asegurar que cada botón tenga conteo
         for(const b of buttons){
           if(typeof counts[b.id] !== "number") counts[b.id] = 0;
         }
-        // Limpiar conteos de botones eliminados
         for(const id of Object.keys(counts)){
           if(!buttons.some(b => b.id === id)) delete counts[id];
         }
-
         saveCounts();
       } catch(e){
-        // fallback seguro
         buttons = [
           { id: uid(), amount: 12000 },
           { id: uid(), amount: 15000 },
@@ -572,17 +584,8 @@
         ];
         counts = {};
         for(const b of buttons) counts[b.id] = 0;
-        saveButtons();
-        saveCounts();
+        saveButtons(); saveCounts();
       }
-    }
-
-    function saveButtons(){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(buttons));
-    }
-
-    function saveCounts(){
-      localStorage.setItem(STORAGE_COUNTS_KEY, JSON.stringify(counts));
     }
 
     function compute(){
@@ -597,8 +600,24 @@
       $itemsInfo.textContent = touches === 1 ? "1 toque" : `${touches} toques`;
     }
 
+    function setEditMode(on){
+      editMode = on;
+      if(editMode){
+        $wrap.classList.add("edit-mode");
+        showToast("Modo borrar (tocá ✕). Tocá afuera para salir.");
+        // Auto-salir después de 10s (para que no quede pegado)
+        clearTimeout(editModeTimer);
+        editModeTimer = setTimeout(()=> setEditMode(false), 10000);
+      } else {
+        $wrap.classList.remove("edit-mode");
+        clearTimeout(editModeTimer);
+        editModeTimer = null;
+      }
+    }
+
     function render(){
       $grid.innerHTML = "";
+
       for(const b of buttons){
         const c = counts[b.id] || 0;
 
@@ -607,6 +626,8 @@
         tile.dataset.id = b.id;
 
         tile.innerHTML = `
+          <button class="delete-badge" data-act="remove" aria-label="Eliminar botón">✕</button>
+
           <div class="tile-top">
             <div class="amount">${formatARS(b.amount)}</div>
             <div class="count"><small>x</small><span>${c}</span></div>
@@ -616,10 +637,9 @@
             <button class="mini" data-act="minus" aria-label="Restar">−</button>
             <button class="mini" data-act="plus" aria-label="Sumar">+</button>
           </div>
-
-          <button class="remove" data-act="remove" aria-label="Eliminar botón">Eliminar</button>
         `;
 
+        attachLongPress(tile);
         $grid.appendChild(tile);
       }
 
@@ -632,7 +652,6 @@
       counts[id] = next;
       saveCounts();
 
-      // actualizar solo el tile
       const tile = $grid.querySelector(`.tile[data-id="${CSS.escape(id)}"]`);
       if(tile){
         const span = tile.querySelector(".count span");
@@ -648,53 +667,88 @@
       saveCounts();
       render();
       showToast("Botón eliminado");
+      if(buttons.length === 0){
+        setEditMode(false);
+      }
     }
 
     function resetCounts(){
-      for(const b of buttons){
-        counts[b.id] = 0;
-      }
+      for(const b of buttons) counts[b.id] = 0;
       saveCounts();
       render();
       showToast("Conteos reiniciados");
     }
 
-    // Sheet (nuevo botón)
+    // Sheet
     function openSheet(){
+      setEditMode(false);
       $sheetBackdrop.classList.add("show");
       $sheetBackdrop.setAttribute("aria-hidden", "false");
       $amountInput.value = "";
       setTimeout(()=> $amountInput.focus(), 120);
     }
-
     function closeSheet(){
       $sheetBackdrop.classList.remove("show");
       $sheetBackdrop.setAttribute("aria-hidden", "true");
       $amountInput.blur();
     }
-
     function addButtonFromInput(){
       const val = parseAmount($amountInput.value);
       if(!val || val <= 0){
         showToast("Poné un monto válido");
         return;
       }
-
-      // evitar duplicados exactos? (permitimos, pero lo normal es evitar)
       const id = uid();
       buttons.unshift({ id, amount: val });
       counts[id] = 0;
-
-      saveButtons();
-      saveCounts();
+      saveButtons(); saveCounts();
       render();
       closeSheet();
       showToast("Botón creado");
     }
 
-    // Eventos globales
+    // Long press para entrar en modo borrar
+    function attachLongPress(tile){
+      let pressTimer = null;
+      let moved = false;
+
+      const start = (e) => {
+        moved = false;
+
+        // si tocan un botón (+/−), no activamos long press
+        const isControl = e.target.closest("[data-act]");
+        if(isControl) return;
+
+        pressTimer = setTimeout(() => {
+          setEditMode(true);
+        }, 450);
+      };
+
+      const cancel = () => {
+        clearTimeout(pressTimer);
+        pressTimer = null;
+      };
+
+      const move = () => {
+        moved = true;
+        cancel();
+      };
+
+      tile.addEventListener("touchstart", start, { passive: true });
+      tile.addEventListener("touchend", cancel);
+      tile.addEventListener("touchcancel", cancel);
+      tile.addEventListener("touchmove", move);
+
+      tile.addEventListener("mousedown", start);
+      tile.addEventListener("mouseup", cancel);
+      tile.addEventListener("mouseleave", cancel);
+      tile.addEventListener("mousemove", () => { if(!moved) {} });
+    }
+
+    // Eventos
     document.getElementById("addBtn").addEventListener("click", openSheet);
     document.getElementById("resetBtn").addEventListener("click", () => {
+      setEditMode(false);
       if(confirm("¿Reiniciar conteos? (No borra tus botones)")) resetCounts();
     });
 
@@ -702,30 +756,48 @@
     document.getElementById("cancelAdd").addEventListener("click", closeSheet);
     document.getElementById("confirmAdd").addEventListener("click", addButtonFromInput);
 
-    // Cerrar tocando afuera
     $sheetBackdrop.addEventListener("click", (e) => {
       if(e.target === $sheetBackdrop) closeSheet();
     });
 
-    // Enter para crear
     $amountInput.addEventListener("keydown", (e) => {
       if(e.key === "Enter") addButtonFromInput();
     });
 
-    // Delegación de eventos en la grilla
+    // Delegación grilla: + / − / delete (solo si editMode)
     $grid.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-act]");
-      if(!btn) return;
+      const actBtn = e.target.closest("[data-act]");
+      if(!actBtn) return;
 
       const tile = e.target.closest(".tile");
       if(!tile) return;
       const id = tile.dataset.id;
 
-      const act = btn.getAttribute("data-act");
-      if(act === "plus") updateCount(id, +1);
-      if(act === "minus") updateCount(id, -1);
+      const act = actBtn.getAttribute("data-act");
+
+      if(act === "plus"){
+        if(!editMode) updateCount(id, +1);
+        return;
+      }
+      if(act === "minus"){
+        if(!editMode) updateCount(id, -1);
+        return;
+      }
       if(act === "remove"){
+        if(!editMode) return; // solo en modo borrar
         if(confirm("¿Eliminar este botón?")) removeButton(id);
+        return;
+      }
+    });
+
+    // Tocar afuera para salir del modo borrar
+    document.addEventListener("click", (e) => {
+      if(!editMode) return;
+      const insideTile = e.target.closest(".tile");
+      const insideSheet = e.target.closest(".sheet");
+      if(insideSheet) return;
+      if(!insideTile){
+        setEditMode(false);
       }
     });
 
