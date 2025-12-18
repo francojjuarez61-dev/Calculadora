@@ -10,836 +10,273 @@
     :root{
       --bg1:#0b1220;
       --bg2:#1b2a4a;
-
       --glass: rgba(255,255,255,.12);
       --stroke: rgba(255,255,255,.18);
-
       --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.65);
-
-      --shadow: 0 18px 60px rgba(0,0,0,.35);
-      --shadow2: 0 10px 30px rgba(0,0,0,.22);
-
       --radius-xl: 28px;
       --radius-lg: 22px;
     }
 
     *{ box-sizing:border-box; }
-    html,body{ height:100%; }
     body{
       margin:0;
+      font-family:-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui;
       color:var(--text);
-      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display","SF Pro Text", system-ui, Segoe UI, Roboto, Helvetica, Arial;
-      background: radial-gradient(1000px 700px at 20% 10%, rgba(139,59,255,.35), transparent 60%),
-                  radial-gradient(1000px 700px at 80% 0%, rgba(35,213,171,.25), transparent 55%),
-                  radial-gradient(900px 900px at 70% 80%, rgba(255,90,95,.18), transparent 60%),
-                  linear-gradient(180deg, var(--bg1), var(--bg2));
-      overflow-x:hidden;
-    }
-
-    /* “liquid” blobs */
-    .blob{
-      position: fixed;
-      width: 520px;
-      height: 520px;
-      filter: blur(40px);
-      opacity:.55;
-      border-radius: 50%;
-      z-index:-1;
-      animation: float 14s ease-in-out infinite;
-      transform: translate3d(0,0,0);
-    }
-    .blob.b1{ left:-220px; top:-180px; background: radial-gradient(circle at 30% 30%, rgba(139,59,255,.95), rgba(139,59,255,0)); }
-    .blob.b2{ right:-260px; top:120px; background: radial-gradient(circle at 30% 30%, rgba(35,213,171,.9), rgba(35,213,171,0)); animation-delay: -4s;}
-    .blob.b3{ left:10%; bottom:-300px; background: radial-gradient(circle at 30% 30%, rgba(255,90,95,.75), rgba(255,90,95,0)); animation-delay: -7s;}
-    @keyframes float{
-      0%{ transform: translate(0,0) scale(1); }
-      50%{ transform: translate(30px, -20px) scale(1.05); }
-      100%{ transform: translate(0,0) scale(1); }
+      background:
+        radial-gradient(1000px 700px at 20% 10%, rgba(139,59,255,.35), transparent 60%),
+        radial-gradient(1000px 700px at 80% 0%, rgba(35,213,171,.25), transparent 55%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
     }
 
     .wrap{
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 20px 16px 40px;
-      padding-top: calc(14px + env(safe-area-inset-top));
-      padding-bottom: calc(28px + env(safe-area-inset-bottom));
+      max-width:900px;
+      margin:auto;
+      padding:16px;
+      padding-bottom:40px;
     }
 
-    .topbar{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom: 14px;
+    h1{
+      margin:8px 0 2px;
+      font-size:28px;
+      font-weight:800;
     }
-
-    .title{
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-    }
-    .title h1{
-      margin:0;
-      font-size: 28px;
-      letter-spacing: -0.02em;
-      font-weight: 800;
-      line-height: 1.05;
-    }
-    .title p{
-      margin:0;
-      color: var(--muted);
-      font-weight: 600;
-      font-size: 13px;
+    .subtitle{
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:14px;
     }
 
     .panel{
-      background: var(--glass);
-      border: 1px solid var(--stroke);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      background:var(--glass);
+      border:1px solid var(--stroke);
+      border-radius:var(--radius-xl);
+      backdrop-filter:blur(16px);
+      padding:16px;
     }
 
+    /* ===== TOTAL ===== */
     .summary{
-      padding: 16px;
-      display:flex;
-      gap:12px;
-      align-items:stretch;
-      justify-content:space-between;
-      margin-bottom: 14px;
-    }
-
-    .sum-left{ flex:1; min-width:0; }
-    .sum-label{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      color: var(--muted);
-      font-weight: 700;
-      font-size: 12px;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-    }
-    .total{
-      margin-top: 10px;
-      font-size: 40px;
-      font-weight: 900;
-      letter-spacing: -0.03em;
-      line-height: 1.1;
-      word-break: break-word;
-      text-shadow: 0 10px 30px rgba(0,0,0,.22);
-    }
-    .hint{
-      margin-top: 6px;
-      color: rgba(255,255,255,.55);
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .sum-actions{
       display:flex;
       flex-direction:column;
-      gap:10px;
-      min-width: 150px;
+      gap:12px;
+      margin-bottom:16px;
     }
 
-    .btn{
-      appearance:none;
-      border: 1px solid var(--stroke);
-      background: rgba(0,0,0,.14);
-      color: var(--text);
-      border-radius: 18px;
-      padding: 12px 12px;
-      font-weight: 800;
-      font-size: 13px;
-      letter-spacing: .01em;
-      box-shadow: var(--shadow2);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+    .sum-label{
       display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      user-select:none;
-      -webkit-user-select:none;
-      touch-action: manipulation;
-    }
-    .btn:active{ transform: scale(.98); }
-    .btn.primary{ background: rgba(255,255,255,.18); }
-    .btn.danger{
-      background: rgba(255,90,95,.18);
-      border-color: rgba(255,90,95,.28);
+      justify-content:space-between;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:700;
+      letter-spacing:.06em;
+      text-transform:uppercase;
     }
 
+    .total{
+      font-size:clamp(38px,10vw,52px);
+      font-weight:900;
+      line-height:1.05;
+    }
+
+    .chips{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .chip{
+      height:34px;
+      padding:0 14px;
+      border-radius:999px;
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.18);
+      backdrop-filter:blur(12px);
+      font-size:12px;
+      font-weight:700;
+      color:var(--text);
+    }
+    .chip.danger{
+      background:rgba(255,90,95,.22);
+      border-color:rgba(255,90,95,.35);
+    }
+    .chip:active{ transform:scale(.97); }
+
+    /* ===== GRID ===== */
     .grid{
       display:grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 12px;
-    }
-    @media (min-width: 720px){
-      .wrap{ padding-left: 22px; padding-right: 22px; }
-      .grid{ grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
-      .summary{ padding: 18px; }
-      .total{ font-size: 44px; }
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
     }
 
     .tile{
-      position:relative;
-      padding: 14px;
-      border-radius: var(--radius-lg);
-      background: rgba(255,255,255,.10);
-      border: 1px solid rgba(255,255,255,.16);
-      box-shadow: var(--shadow2);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      overflow:hidden;
+      background:rgba(255,255,255,.1);
+      border:1px solid var(--stroke);
+      border-radius:var(--radius-lg);
+      padding:14px;
+      backdrop-filter:blur(14px);
       display:flex;
       flex-direction:column;
-      gap: 12px;
-      min-height: 0;
-      user-select:none;
-      -webkit-user-select:none;
-      touch-action: manipulation;
-    }
-    .tile::before{
-      content:"";
-      position:absolute;
-      inset:-40px;
-      background: radial-gradient(300px 220px at 20% 20%, rgba(255,255,255,.14), transparent 60%),
-                  radial-gradient(280px 240px at 80% 0%, rgba(255,255,255,.10), transparent 60%);
-      opacity:.9;
-      pointer-events:none;
+      gap:12px;
+      position:relative;
     }
 
     .tile-top{
-      position:relative;
       display:flex;
       justify-content:space-between;
       align-items:center;
-      gap: 10px;
-      padding-right: 8px;
     }
 
     .amount{
-      position:relative;
-      font-size: 22px;
-      font-weight: 900;
-      letter-spacing: -0.02em;
-      line-height: 1.1;
+      font-size:22px;
+      font-weight:900;
     }
+
     .count{
-      position:relative;
-      display:flex;
-      align-items:center;
-      gap:6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(0,0,0,.18);
-      border: 1px solid rgba(255,255,255,.12);
-      color: rgba(255,255,255,.92);
-      font-weight: 900;
-      font-size: 13px;
-      min-width: 56px;
-      justify-content:center;
-    }
-    .count small{
-      color: rgba(255,255,255,.68);
-      font-weight: 800;
-      font-size: 11px;
+      font-size:13px;
+      font-weight:800;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(0,0,0,.18);
     }
 
     .controls{
-      position:relative;
       display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      align-items:center;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
     }
 
     .mini{
-      width: 100%;
-      height: 54px;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(0,0,0,.16);
-      color: var(--text);
-      font-size: 22px;
-      font-weight: 900;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      box-shadow: 0 10px 24px rgba(0,0,0,.22);
-      user-select:none;
-      -webkit-user-select:none;
-      touch-action: manipulation;
+      height:54px;
+      border-radius:18px;
+      border:1px solid var(--stroke);
+      background:rgba(0,0,0,.18);
+      color:var(--text);
+      font-size:22px;
+      font-weight:900;
     }
-    .mini:active{ transform: scale(.97); background: rgba(255,255,255,.18); }
+    .mini:active{ transform:scale(.97); }
 
-    /* delete badge (solo en modo edición) */
-    .delete-badge{
+    /* delete badge */
+    .delete{
       position:absolute;
-      left: 10px;
-      top: 10px;
-      width: 34px;
-      height: 34px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,90,95,.35);
-      background: rgba(255,90,95,.30);
-      color: rgba(255,255,255,.95);
-      font-weight: 900;
-      font-size: 18px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      box-shadow: 0 12px 28px rgba(0,0,0,.25);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      opacity: 0;
-      transform: scale(.92);
-      pointer-events:none;
-      transition: opacity .18s ease, transform .18s ease;
-      z-index: 5;
-    }
-
-    .edit-mode .tile{
-      animation: wiggle .18s ease-in-out infinite alternate;
-    }
-    @keyframes wiggle{
-      from{ transform: rotate(-0.6deg); }
-      to{ transform: rotate(0.6deg); }
-    }
-
-    .edit-mode .delete-badge{
-      opacity: 1;
-      transform: scale(1);
-      pointer-events:auto;
-    }
-
-    /* Bottom sheet */
-    .sheet-backdrop{
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.45);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      top:10px;
+      left:10px;
+      width:32px;
+      height:32px;
+      border-radius:50%;
+      background:rgba(255,90,95,.35);
+      border:1px solid rgba(255,90,95,.5);
+      color:white;
+      font-weight:900;
       display:none;
-      align-items:flex-end;
-      justify-content:center;
-      padding: 14px;
-      padding-bottom: calc(14px + env(safe-area-inset-bottom));
-      z-index: 50;
     }
-    .sheet{
-      width: 100%;
-      max-width: 720px;
-      border-radius: 26px;
-      background: rgba(255,255,255,.14);
-      border: 1px solid rgba(255,255,255,.18);
-      box-shadow: 0 30px 90px rgba(0,0,0,.55);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      padding: 14px;
-      transform: translateY(12px);
-      opacity: 0;
-      transition: transform .22s ease, opacity .22s ease;
-    }
-    .sheet-backdrop.show{ display:flex; }
-    .sheet-backdrop.show .sheet{ transform: translateY(0); opacity:1; }
 
-    .sheet-head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 10px;
-      padding: 6px 6px 10px;
-    }
-    .sheet-title{
-      font-weight: 900;
-      letter-spacing: -.02em;
-    }
-    .xbtn{
-      width: 44px; height: 44px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(0,0,0,.18);
-      color: rgba(255,255,255,.92);
-      font-weight: 900;
-      font-size: 18px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      user-select:none;
-      -webkit-user-select:none;
-      touch-action: manipulation;
-    }
-    .xbtn:active{ transform: scale(.98); }
+    .edit .delete{ display:flex; align-items:center; justify-content:center; }
 
-    .form{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      padding: 6px;
-    }
-    .field{
-      display:flex;
-      flex-direction:column;
-      gap: 6px;
-    }
-    .field label{
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-    .input{
-      height: 52px;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(0,0,0,.18);
-      color: rgba(255,255,255,.92);
-      padding: 0 14px;
-      font-size: 16px;
-      font-weight: 900;
-      outline: none;
-    }
-    .input::placeholder{ color: rgba(255,255,255,.4); font-weight: 800; }
-
-    .sheet-actions{
-      display:flex;
-      gap: 10px;
-      padding: 6px;
-    }
-    .sheet-actions .btn{ flex:1; height: 52px; border-radius: 18px; }
-
-    .toast{
-      position: fixed;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: calc(16px + env(safe-area-inset-bottom));
-      background: rgba(0,0,0,.45);
-      border: 1px solid rgba(255,255,255,.16);
-      color: rgba(255,255,255,.92);
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-weight: 800;
-      font-size: 13px;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      box-shadow: 0 18px 60px rgba(0,0,0,.35);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .22s ease, transform .22s ease;
-      z-index: 60;
-    }
-    .toast.show{
-      opacity: 1;
-      transform: translateX(-50%) translateY(-4px);
-    }
   </style>
 </head>
 
 <body>
-  <div class="blob b1"></div>
-  <div class="blob b2"></div>
-  <div class="blob b3"></div>
-
-  <div class="wrap" id="appWrap">
-    <div class="topbar">
-      <div class="title">
-        <h1>QuickGlass Calc</h1>
-        <p>Sumá servicios con botones (+/−). Reiniciá conteos sin borrar tus botones.</p>
-      </div>
-    </div>
+  <div class="wrap" id="app">
+    <h1>QuickGlass Calc</h1>
+    <div class="subtitle">Sumá servicios con botones (+ / −)</div>
 
     <section class="panel summary">
-      <div class="sum-left">
-        <div class="sum-label">
-          <span>Total</span>
-          <span id="itemsInfo">0 toques</span>
-        </div>
-        <div class="total" id="total">$0</div>
-        <div class="hint">Tip: mantené apretado cualquier tarjeta para entrar en “modo borrar”.</div>
+      <div class="sum-label">
+        <span>Total</span>
+        <span id="touches">0 toques</span>
       </div>
-
-      <div class="sum-actions">
-        <button class="btn primary" id="addBtn">+ Nuevo botón</button>
-        <button class="btn danger" id="resetBtn">Reiniciar conteos</button>
+      <div class="total" id="total">$0</div>
+      <div class="chips">
+        <button class="chip" id="addBtn">+ Nuevo botón</button>
+        <button class="chip danger" id="resetBtn">Reiniciar</button>
       </div>
     </section>
 
     <div class="grid" id="grid"></div>
   </div>
 
-  <!-- Bottom sheet para crear botón -->
-  <div class="sheet-backdrop" id="sheetBackdrop" aria-hidden="true">
-    <div class="sheet" role="dialog" aria-modal="true" aria-label="Nuevo botón">
-      <div class="sheet-head">
-        <div class="sheet-title">Nuevo botón</div>
-        <button class="xbtn" id="closeSheet" aria-label="Cerrar">✕</button>
-      </div>
-
-      <div class="form">
-        <div class="field">
-          <label for="amountInput">Monto (ARS)</label>
-          <input class="input" id="amountInput" inputmode="numeric" placeholder="Ej: 12000" />
-        </div>
-      </div>
-
-      <div class="sheet-actions">
-        <button class="btn" id="cancelAdd">Cancelar</button>
-        <button class="btn primary" id="confirmAdd">Crear</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="toast" id="toast">Listo</div>
-
   <script>
-    const STORAGE_KEY = "qgc_buttons_v3";
-    const STORAGE_COUNTS_KEY = "qgc_counts_v3";
-
-    let buttons = [];
+    let buttons = [
+      {id:1, amount:12000},
+      {id:2, amount:15000},
+      {id:3, amount:20000},
+      {id:4, amount:8000},
+      {id:5, amount:2000}
+    ];
     let counts = {};
+    let edit=false;
+    let audioCtx;
 
-    const $wrap = document.getElementById("appWrap");
-    const $grid = document.getElementById("grid");
-    const $total = document.getElementById("total");
-    const $itemsInfo = document.getElementById("itemsInfo");
-
-    const $sheetBackdrop = document.getElementById("sheetBackdrop");
-    const $amountInput = document.getElementById("amountInput");
-    const $toast = document.getElementById("toast");
-
-    let editMode = false;
-    let editModeTimer = null;
-
-    // --- HAPTIC + CLICK ---
-    let audioCtx = null;
-
-    function clickSound(){
+    function sound(){
       try{
-        if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const t = audioCtx.currentTime;
-        const o = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-
-        // “click” corto tipo teclado
-        o.type = "square";
-        o.frequency.setValueAtTime(950, t);
-        g.gain.setValueAtTime(0.0001, t);
-        g.gain.exponentialRampToValueAtTime(0.08, t + 0.005);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.030);
-
-        o.connect(g);
-        g.connect(audioCtx.destination);
-
-        o.start(t);
-        o.stop(t + 0.035);
-      } catch(e){}
+        if(!audioCtx) audioCtx=new AudioContext();
+        const o=audioCtx.createOscillator();
+        const g=audioCtx.createGain();
+        o.frequency.value=900;
+        g.gain.value=0.08;
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(); o.stop(audioCtx.currentTime+0.03);
+      }catch{}
+      if(navigator.vibrate) navigator.vibrate(10);
     }
 
-    function haptic(){
-      try{
-        if(navigator.vibrate) navigator.vibrate(10);
-      } catch(e){}
-    }
-
-    function feedback(){
-      clickSound();
-      haptic();
-    }
-
-    function showToast(msg){
-      $toast.textContent = msg;
-      $toast.classList.add("show");
-      setTimeout(()=> $toast.classList.remove("show"), 1400);
-    }
-
-    function formatARS(n){
-      if (!Number.isFinite(n)) n = 0;
-      return new Intl.NumberFormat("es-AR", {
-        style:"currency",
-        currency:"ARS",
-        maximumFractionDigits: 0
-      }).format(n);
-    }
-
-    function parseAmount(text){
-      const clean = String(text || "").replace(/[^\d]/g, "");
-      const val = parseInt(clean, 10);
-      return Number.isFinite(val) ? val : 0;
-    }
-
-    function uid(){
-      return "b_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
-    }
-
-    function saveButtons(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(buttons)); }
-    function saveCounts(){ localStorage.setItem(STORAGE_COUNTS_KEY, JSON.stringify(counts)); }
-
-    function load(){
-      try{
-        const raw = localStorage.getItem(STORAGE_KEY);
-        const rawCounts = localStorage.getItem(STORAGE_COUNTS_KEY);
-
-        if(raw){
-          buttons = JSON.parse(raw) || [];
-        } else {
-          buttons = [
-            { id: uid(), amount: 12000 },
-            { id: uid(), amount: 15000 },
-            { id: uid(), amount: 20000 },
-            { id: uid(), amount: 8000  },
-            { id: uid(), amount: 2000  },
-          ];
-          saveButtons();
-        }
-
-        counts = rawCounts ? (JSON.parse(rawCounts) || {}) : {};
-
-        for(const b of buttons){
-          if(typeof counts[b.id] !== "number") counts[b.id] = 0;
-        }
-        for(const id of Object.keys(counts)){
-          if(!buttons.some(b => b.id === id)) delete counts[id];
-        }
-        saveCounts();
-      } catch(e){
-        buttons = [
-          { id: uid(), amount: 12000 },
-          { id: uid(), amount: 15000 },
-          { id: uid(), amount: 20000 },
-          { id: uid(), amount: 8000  },
-          { id: uid(), amount: 2000  },
-        ];
-        counts = {};
-        for(const b of buttons) counts[b.id] = 0;
-        saveButtons(); saveCounts();
-      }
-    }
-
-    function compute(){
-      let total = 0;
-      let touches = 0;
-      for(const b of buttons){
-        const c = counts[b.id] || 0;
-        total += b.amount * c;
-        touches += c;
-      }
-      $total.textContent = formatARS(total);
-      $itemsInfo.textContent = touches === 1 ? "1 toque" : `${touches} toques`;
-    }
-
-    function setEditMode(on){
-      editMode = on;
-      if(editMode){
-        $wrap.classList.add("edit-mode");
-        showToast("Modo borrar (tocá ✕). Tocá afuera para salir.");
-        clearTimeout(editModeTimer);
-        editModeTimer = setTimeout(()=> setEditMode(false), 10000);
-      } else {
-        $wrap.classList.remove("edit-mode");
-        clearTimeout(editModeTimer);
-        editModeTimer = null;
-      }
+    function format(n){
+      return new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0}).format(n);
     }
 
     function render(){
-      $grid.innerHTML = "";
+      const grid=document.getElementById("grid");
+      grid.innerHTML="";
+      let total=0, t=0;
 
-      for(const b of buttons){
-        const c = counts[b.id] || 0;
+      buttons.forEach(b=>{
+        counts[b.id]=counts[b.id]||0;
+        total+=b.amount*counts[b.id];
+        t+=counts[b.id];
 
-        const tile = document.createElement("div");
-        tile.className = "tile";
-        tile.dataset.id = b.id;
-
-        tile.innerHTML = `
-          <button class="delete-badge" data-act="remove" aria-label="Eliminar botón">✕</button>
-
+        const d=document.createElement("div");
+        d.className="tile"+(edit?" edit":"");
+        d.innerHTML=`
+          <button class="delete">×</button>
           <div class="tile-top">
-            <div class="amount">${formatARS(b.amount)}</div>
-            <div class="count"><small>x</small><span>${c}</span></div>
+            <div class="amount">${format(b.amount)}</div>
+            <div class="count">x ${counts[b.id]}</div>
           </div>
-
           <div class="controls">
-            <button class="mini" data-act="minus" aria-label="Restar">−</button>
-            <button class="mini" data-act="plus" aria-label="Sumar">+</button>
+            <button class="mini">−</button>
+            <button class="mini">+</button>
           </div>
         `;
+        d.querySelectorAll(".mini")[0].onclick=()=>{ if(!edit){ sound(); counts[b.id]--; if(counts[b.id]<0)counts[b.id]=0; render();}};
+        d.querySelectorAll(".mini")[1].onclick=()=>{ if(!edit){ sound(); counts[b.id]++; render();}};
+        d.querySelector(".delete").onclick=()=>{ if(edit){ buttons=buttons.filter(x=>x.id!==b.id); render();}};
+        d.oncontextmenu=e=>e.preventDefault();
+        d.ontouchstart=()=>{ setTimeout(()=>{ edit=true; render(); },500); };
 
-        attachLongPress(tile);
-        $grid.appendChild(tile);
-      }
+        grid.appendChild(d);
+      });
 
-      compute();
+      document.getElementById("total").textContent=format(total);
+      document.getElementById("touches").textContent=t+" toques";
     }
 
-    function updateCount(id, delta){
-      const current = counts[id] || 0;
-      const next = Math.max(0, current + delta);
-      counts[id] = next;
-      saveCounts();
-
-      const tile = $grid.querySelector(`.tile[data-id="${CSS.escape(id)}"]`);
-      if(tile){
-        const span = tile.querySelector(".count span");
-        if(span) span.textContent = String(next);
-      }
-      compute();
-    }
-
-    function removeButton(id){
-      buttons = buttons.filter(b => b.id !== id);
-      delete counts[id];
-      saveButtons();
-      saveCounts();
+    document.getElementById("resetBtn").onclick=()=>{
+      sound();
+      buttons.forEach(b=>counts[b.id]=0);
       render();
-      showToast("Botón eliminado");
-      if(buttons.length === 0){
-        setEditMode(false);
+    };
+
+    document.getElementById("addBtn").onclick=()=>{
+      sound();
+      const v=prompt("Monto:");
+      if(v){
+        buttons.unshift({id:Date.now(),amount:parseInt(v)});
+        render();
       }
-    }
+    };
 
-    function resetCounts(){
-      for(const b of buttons) counts[b.id] = 0;
-      saveCounts();
-      render();
-      showToast("Conteos reiniciados");
-    }
-
-    // Sheet
-    function openSheet(){
-      setEditMode(false);
-      $sheetBackdrop.classList.add("show");
-      $sheetBackdrop.setAttribute("aria-hidden", "false");
-      $amountInput.value = "";
-      setTimeout(()=> $amountInput.focus(), 120);
-    }
-    function closeSheet(){
-      $sheetBackdrop.classList.remove("show");
-      $sheetBackdrop.setAttribute("aria-hidden", "true");
-      $amountInput.blur();
-    }
-    function addButtonFromInput(){
-      const val = parseAmount($amountInput.value);
-      if(!val || val <= 0){
-        showToast("Poné un monto válido");
-        return;
-      }
-      const id = uid();
-      buttons.unshift({ id, amount: val });
-      counts[id] = 0;
-      saveButtons(); saveCounts();
-      render();
-      closeSheet();
-      showToast("Botón creado");
-    }
-
-    // Long press -> modo borrar
-    function attachLongPress(tile){
-      let pressTimer = null;
-
-      const start = (e) => {
-        const isControl = e.target.closest("[data-act]");
-        if(isControl) return;
-
-        pressTimer = setTimeout(() => {
-          // feedback también al entrar en modo borrar
-          feedback();
-          setEditMode(true);
-        }, 450);
-      };
-
-      const cancel = () => {
-        clearTimeout(pressTimer);
-        pressTimer = null;
-      };
-
-      tile.addEventListener("touchstart", start, { passive: true });
-      tile.addEventListener("touchend", cancel);
-      tile.addEventListener("touchcancel", cancel);
-      tile.addEventListener("touchmove", cancel);
-
-      tile.addEventListener("mousedown", start);
-      tile.addEventListener("mouseup", cancel);
-      tile.addEventListener("mouseleave", cancel);
-    }
-
-    // Eventos
-    document.getElementById("addBtn").addEventListener("click", () => {
-      feedback();
-      openSheet();
-    });
-
-    document.getElementById("resetBtn").addEventListener("click", () => {
-      setEditMode(false);
-      feedback();
-      if(confirm("¿Reiniciar conteos? (No borra tus botones)")) resetCounts();
-    });
-
-    document.getElementById("closeSheet").addEventListener("click", () => { feedback(); closeSheet(); });
-    document.getElementById("cancelAdd").addEventListener("click", () => { feedback(); closeSheet(); });
-    document.getElementById("confirmAdd").addEventListener("click", () => { feedback(); addButtonFromInput(); });
-
-    $sheetBackdrop.addEventListener("click", (e) => {
-      if(e.target === $sheetBackdrop){ feedback(); closeSheet(); }
-    });
-
-    $amountInput.addEventListener("keydown", (e) => {
-      if(e.key === "Enter"){ feedback(); addButtonFromInput(); }
-    });
-
-    // Delegación grilla: + / − / delete (solo si editMode)
-    $grid.addEventListener("click", (e) => {
-      const actBtn = e.target.closest("[data-act]");
-      if(!actBtn) return;
-
-      const tile = e.target.closest(".tile");
-      if(!tile) return;
-      const id = tile.dataset.id;
-
-      const act = actBtn.getAttribute("data-act");
-
-      if(act === "plus"){
-        if(!editMode){
-          feedback();
-          updateCount(id, +1);
-        }
-        return;
-      }
-      if(act === "minus"){
-        if(!editMode){
-          feedback();
-          updateCount(id, -1);
-        }
-        return;
-      }
-      if(act === "remove"){
-        if(!editMode) return;
-        feedback();
-        if(confirm("¿Eliminar este botón?")) removeButton(id);
-        return;
-      }
-    });
-
-    // Tocar afuera para salir del modo borrar
-    document.addEventListener("click", (e) => {
-      if(!editMode) return;
-      const insideTile = e.target.closest(".tile");
-      const insideSheet = e.target.closest(".sheet");
-      if(insideSheet) return;
-      if(!insideTile){
-        setEditMode(false);
-      }
-    });
-
-    // Init
-    load();
     render();
   </script>
 </body>
