@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>QuickGlass Calc</title>
+  <meta name="theme-color" content="#0b1220" />
+
+  <style>
+    :root{
+      --bg1:#0b1220;
+      --bg2:#1b2a4a;
+      --bg3:#8b3bff;
+      --bg4:#23d5ab;
+
+      --glass: rgba(255,255,255,.12);
+      --glass2: rgba(255,255,255,.08);
+      --stroke: rgba(255,255,255,.18);
+
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.65);
+
+      --shadow: 0 18px 60px rgba(0,0,0,.35);
+      --shadow2: 0 10px 30px rgba(0,0,0,.22);
+
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 18px;
+      --radius-sm: 14px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      color:var(--text);
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display","SF Pro Text", system-ui, Segoe UI, Roboto, Helvetica, Arial;
+      background: radial-gradient(1000px 700px at 20% 10%, rgba(139,59,255,.35), transparent 60%),
+                  radial-gradient(1000px 700px at 80% 0%, rgba(35,213,171,.25), transparent 55%),
+                  radial-gradient(900px 900px at 70% 80%, rgba(255,90,95,.18), transparent 60%),
+                  linear-gradient(180deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
+    }
+
+    /* “liquid” animated blobs */
+    .blob{
+      position: fixed;
+      inset:auto;
+      width: 520px;
+      height: 520px;
+      filter: blur(40px);
+      opacity:.55;
+      border-radius: 50%;
+      z-index:-1;
+      transform: translate3d(0,0,0);
+      animation: float 14s ease-in-out infinite;
+    }
+    .blob.b1{ left:-220px; top:-180px; background: radial-gradient(circle at 30% 30%, rgba(139,59,255,.95), rgba(139,59,255,0)); }
+    .blob.b2{ right:-260px; top:120px; background: radial-gradient(circle at 30% 30%, rgba(35,213,171,.9), rgba(35,213,171,0)); animation-delay: -4s;}
+    .blob.b3{ left:10%; bottom:-300px; background: radial-gradient(circle at 30% 30%, rgba(255,90,95,.75), rgba(255,90,95,0)); animation-delay: -7s;}
+
+    @keyframes float{
+      0%{ transform: translate(0,0) scale(1); }
+      50%{ transform: translate(30px, -20px) scale(1.05); }
+      100%{ transform: translate(0,0) scale(1); }
+    }
+
+    .wrap{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+      padding-top: calc(14px + env(safe-area-inset-top));
+      padding-bottom: calc(28px + env(safe-area-inset-bottom));
+    }
+
+    .topbar{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom: 14px;
+    }
+
+    .title{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .title h1{
+      margin:0;
+      font-size: 28px;
+      letter-spacing: -0.02em;
+      font-weight: 800;
+      line-height: 1.05;
+    }
+    .title p{
+      margin:0;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .panel{
+      background: var(--glass);
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .summary{
+      padding: 16px;
+      display:flex;
+      gap:12px;
+      align-items:stretch;
+      justify-content:space-between;
+      margin-bottom: 14px;
+    }
+
+    .sum-left{ flex:1; min-width:0; }
+    .sum-label{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .total{
+      margin-top: 10px;
+      font-size: 40px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      word-break: break-word;
+      text-shadow: 0 10px 30px rgba(0,0,0,.22);
+    }
+    .hint{
+      margin-top: 6px;
+      color: rgba(255,255,255,.55);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .sum-actions{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-width: 150px;
+    }
+
+    .btn{
+      appearance:none;
+      border: 1px solid var(--stroke);
+      background: rgba(0,0,0,.14);
+      color: var(--text);
+      border-radius: 18px;
+      padding: 12px 12px;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: .01em;
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      user-select:none;
+      -webkit-user-select:none;
+      touch-action: manipulation;
+    }
+    .btn:active{ transform: scale(.98); }
+    .btn.primary{
+      background: rgba(255,255,255,.18);
+    }
+    .btn.danger{
+      background: rgba(255,90,95,.18);
+      border-color: rgba(255,90,95,.28);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 12px;
+    }
+    @media (min-width: 720px){
+      .wrap{ padding-left: 22px; padding-right: 22px; }
+      .grid{ grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+      .summary{ padding: 18px; }
+      .total{ font-size: 44px; }
+    }
+
+    .tile{
+      position:relative;
+      padding: 14px;
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      overflow:hidden;
+      min-height: 132px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap: 10px;
+    }
+    .tile::before{
+      content:"";
+      position:absolute;
+      inset:-40px;
+      background: radial-gradient(300px 220px at 20% 20%, rgba(255,255,255,.14), transparent 60%),
+                  radial-gradient(280px 240px at 80% 0%, rgba(255,255,255,.10), transparent 60%);
+      opacity:.9;
+      pointer-events:none;
+    }
+
+    .tile-top{
+      position:relative;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap: 10px;
+    }
+
+    .amount{
+      position:relative;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+    .count{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.12);
+      color: rgba(255,255,255,.92);
+      font-weight: 900;
+      font-size: 13px;
+      min-width: 56px;
+      justify-content:center;
+    }
+    .count small{
+      color: rgba(255,255,255,.68);
+      font-weight: 800;
+      font-size: 11px;
+    }
+
+    .controls{
+      position:relative;
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .mini{
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.16);
+      color: var(--text);
+      font-size: 22px;
+      font-weight: 900;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      user-select:none;
+      -webkit-user-select:none;
+      touch-action: manipulation;
+      box-shadow: 0 10px 24px rgba(0,0,0,.22);
+    }
+    .mini:active{ transform: scale(.97); background: rgba(255,255,255,.18); }
+
+    .remove{
+      position:absolute;
+      right: 10px;
+      bottom: 10px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,90,95,.28);
+      background: rgba(255,90,95,.18);
+      color: rgba(255,255,255,.92);
+      font-weight: 900;
+      font-size: 12px;
+      letter-spacing: .01em;
+      user-select:none;
+      -webkit-user-select:none;
+      touch-action: manipulation;
+    }
+    .remove:active{ transform: scale(.98); }
+
+    .sheet-backdrop{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      padding: 14px;
+      padding-bottom: calc(14px + env(safe-area-inset-bottom));
+      z-index: 50;
+    }
+    .sheet{
+      width: 100%;
+      max-width: 720px;
+      border-radius: 26px;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 30px 90px rgba(0,0,0,.55);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      padding: 14px;
+      transform: translateY(12px);
+      opacity: 0;
+      transition: transform .22s ease, opacity .22s ease;
+    }
+    .sheet-backdrop.show{ display:flex; }
+    .sheet-backdrop.show .sheet{ transform: translateY(0); opacity:1; }
+
+    .sheet-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 6px 6px 10px;
+    }
+    .sheet-title{
+      font-weight: 900;
+      letter-spacing: -.02em;
+    }
+    .xbtn{
+      width: 44px; height: 44px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.18);
+      color: rgba(255,255,255,.92);
+      font-weight: 900;
+      font-size: 18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      user-select:none;
+      -webkit-user-select:none;
+      touch-action: manipulation;
+    }
+    .xbtn:active{ transform: scale(.98); }
+
+    .form{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      padding: 6px;
+    }
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+    }
+    .field label{
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .input{
+      height: 52px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.18);
+      color: rgba(255,255,255,.92);
+      padding: 0 14px;
+      font-size: 16px;
+      font-weight: 900;
+      outline: none;
+    }
+    .input::placeholder{ color: rgba(255,255,255,.4); font-weight: 800; }
+
+    .sheet-actions{
+      display:flex;
+      gap: 10px;
+      padding: 6px;
+    }
+    .sheet-actions .btn{ flex:1; height: 52px; border-radius: 18px; }
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(16px + env(safe-area-inset-bottom));
+      background: rgba(0,0,0,.45);
+      border: 1px solid rgba(255,255,255,.16);
+      color: rgba(255,255,255,.92);
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 13px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 18px 60px rgba(0,0,0,.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .22s ease, transform .22s ease;
+      z-index: 60;
+    }
+    .toast.show{
+      opacity: 1;
+      transform: translateX(-50%) translateY(-4px);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+
+  <div class="wrap">
+    <div class="topbar">
+      <div class="title">
+        <h1>QuickGlass Calc</h1>
+        <p>Sumá servicios con botones (+/−). Reiniciá conteos sin borrar tus botones.</p>
+      </div>
+    </div>
+
+    <section class="panel summary">
+      <div class="sum-left">
+        <div class="sum-label">
+          <span>Total</span>
+          <span id="itemsInfo">0 toques</span>
+        </div>
+        <div class="total" id="total">$0</div>
+        <div class="hint">Tus botones se guardan en este iPhone (localStorage).</div>
+      </div>
+
+      <div class="sum-actions">
+        <button class="btn primary" id="addBtn">+ Nuevo botón</button>
+        <button class="btn danger" id="resetBtn">Reiniciar conteos</button>
+      </div>
+    </section>
+
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <!-- Bottom sheet para crear botón -->
+  <div class="sheet-backdrop" id="sheetBackdrop" aria-hidden="true">
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Nuevo botón">
+      <div class="sheet-head">
+        <div class="sheet-title">Nuevo botón</div>
+        <button class="xbtn" id="closeSheet" aria-label="Cerrar">✕</button>
+      </div>
+
+      <div class="form">
+        <div class="field">
+          <label for="amountInput">Monto (ARS)</label>
+          <input class="input" id="amountInput" inputmode="numeric" placeholder="Ej: 12000" />
+        </div>
+      </div>
+
+      <div class="sheet-actions">
+        <button class="btn" id="cancelAdd">Cancelar</button>
+        <button class="btn primary" id="confirmAdd">Crear</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Listo</div>
+
+  <script>
+    // -----------------------------
+    // QuickGlass Calc (single-file)
+    // -----------------------------
+
+    const STORAGE_KEY = "qgc_buttons_v1";
+    const STORAGE_COUNTS_KEY = "qgc_counts_v1";
+
+    // Botones: [{id, amount}]
+    // Conteos: { [id]: number }
+    let buttons = [];
+    let counts = {};
+
+    const $grid = document.getElementById("grid");
+    const $total = document.getElementById("total");
+    const $itemsInfo = document.getElementById("itemsInfo");
+
+    const $sheetBackdrop = document.getElementById("sheetBackdrop");
+    const $amountInput = document.getElementById("amountInput");
+
+    const $toast = document.getElementById("toast");
+
+    function showToast(msg){
+      $toast.textContent = msg;
+      $toast.classList.add("show");
+      setTimeout(()=> $toast.classList.remove("show"), 1400);
+    }
+
+    function formatARS(n){
+      if (!Number.isFinite(n)) n = 0;
+      return new Intl.NumberFormat("es-AR", {
+        style:"currency",
+        currency:"ARS",
+        maximumFractionDigits: 0
+      }).format(n);
+    }
+
+    function parseAmount(text){
+      // acepta "12.000" "12,000" "12000" "$ 12.000"
+      const clean = String(text || "")
+        .replace(/[^\d]/g, ""); // deja solo dígitos
+      const val = parseInt(clean, 10);
+      return Number.isFinite(val) ? val : 0;
+    }
+
+    function uid(){
+      return "b_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
+    }
+
+    function load(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const rawCounts = localStorage.getItem(STORAGE_COUNTS_KEY);
+
+        if(raw){
+          buttons = JSON.parse(raw) || [];
+        } else {
+          // Default predefinidos
+          buttons = [
+            { id: uid(), amount: 12000 },
+            { id: uid(), amount: 15000 },
+            { id: uid(), amount: 20000 },
+            { id: uid(), amount: 8000  },
+            { id: uid(), amount: 2000  },
+          ];
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(buttons));
+        }
+
+        counts = rawCounts ? (JSON.parse(rawCounts) || {}) : {};
+
+        // Asegurar que cada botón tenga conteo
+        for(const b of buttons){
+          if(typeof counts[b.id] !== "number") counts[b.id] = 0;
+        }
+        // Limpiar conteos de botones eliminados
+        for(const id of Object.keys(counts)){
+          if(!buttons.some(b => b.id === id)) delete counts[id];
+        }
+
+        saveCounts();
+      } catch(e){
+        // fallback seguro
+        buttons = [
+          { id: uid(), amount: 12000 },
+          { id: uid(), amount: 15000 },
+          { id: uid(), amount: 20000 },
+          { id: uid(), amount: 8000  },
+          { id: uid(), amount: 2000  },
+        ];
+        counts = {};
+        for(const b of buttons) counts[b.id] = 0;
+        saveButtons();
+        saveCounts();
+      }
+    }
+
+    function saveButtons(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(buttons));
+    }
+
+    function saveCounts(){
+      localStorage.setItem(STORAGE_COUNTS_KEY, JSON.stringify(counts));
+    }
+
+    function compute(){
+      let total = 0;
+      let touches = 0;
+      for(const b of buttons){
+        const c = counts[b.id] || 0;
+        total += b.amount * c;
+        touches += c;
+      }
+      $total.textContent = formatARS(total);
+      $itemsInfo.textContent = touches === 1 ? "1 toque" : `${touches} toques`;
+    }
+
+    function render(){
+      $grid.innerHTML = "";
+      for(const b of buttons){
+        const c = counts[b.id] || 0;
+
+        const tile = document.createElement("div");
+        tile.className = "tile";
+        tile.dataset.id = b.id;
+
+        tile.innerHTML = `
+          <div class="tile-top">
+            <div class="amount">${formatARS(b.amount)}</div>
+            <div class="count"><small>x</small><span>${c}</span></div>
+          </div>
+
+          <div class="controls">
+            <button class="mini" data-act="minus" aria-label="Restar">−</button>
+            <button class="mini" data-act="plus" aria-label="Sumar">+</button>
+          </div>
+
+          <button class="remove" data-act="remove" aria-label="Eliminar botón">Eliminar</button>
+        `;
+
+        $grid.appendChild(tile);
+      }
+
+      compute();
+    }
+
+    function updateCount(id, delta){
+      const current = counts[id] || 0;
+      const next = Math.max(0, current + delta);
+      counts[id] = next;
+      saveCounts();
+
+      // actualizar solo el tile
+      const tile = $grid.querySelector(`.tile[data-id="${CSS.escape(id)}"]`);
+      if(tile){
+        const span = tile.querySelector(".count span");
+        if(span) span.textContent = String(next);
+      }
+      compute();
+    }
+
+    function removeButton(id){
+      buttons = buttons.filter(b => b.id !== id);
+      delete counts[id];
+      saveButtons();
+      saveCounts();
+      render();
+      showToast("Botón eliminado");
+    }
+
+    function resetCounts(){
+      for(const b of buttons){
+        counts[b.id] = 0;
+      }
+      saveCounts();
+      render();
+      showToast("Conteos reiniciados");
+    }
+
+    // Sheet (nuevo botón)
+    function openSheet(){
+      $sheetBackdrop.classList.add("show");
+      $sheetBackdrop.setAttribute("aria-hidden", "false");
+      $amountInput.value = "";
+      setTimeout(()=> $amountInput.focus(), 120);
+    }
+
+    function closeSheet(){
+      $sheetBackdrop.classList.remove("show");
+      $sheetBackdrop.setAttribute("aria-hidden", "true");
+      $amountInput.blur();
+    }
+
+    function addButtonFromInput(){
+      const val = parseAmount($amountInput.value);
+      if(!val || val <= 0){
+        showToast("Poné un monto válido");
+        return;
+      }
+
+      // evitar duplicados exactos? (permitimos, pero lo normal es evitar)
+      const id = uid();
+      buttons.unshift({ id, amount: val });
+      counts[id] = 0;
+
+      saveButtons();
+      saveCounts();
+      render();
+      closeSheet();
+      showToast("Botón creado");
+    }
+
+    // Eventos globales
+    document.getElementById("addBtn").addEventListener("click", openSheet);
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      if(confirm("¿Reiniciar conteos? (No borra tus botones)")) resetCounts();
+    });
+
+    document.getElementById("closeSheet").addEventListener("click", closeSheet);
+    document.getElementById("cancelAdd").addEventListener("click", closeSheet);
+    document.getElementById("confirmAdd").addEventListener("click", addButtonFromInput);
+
+    // Cerrar tocando afuera
+    $sheetBackdrop.addEventListener("click", (e) => {
+      if(e.target === $sheetBackdrop) closeSheet();
+    });
+
+    // Enter para crear
+    $amountInput.addEventListener("keydown", (e) => {
+      if(e.key === "Enter") addButtonFromInput();
+    });
+
+    // Delegación de eventos en la grilla
+    $grid.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-act]");
+      if(!btn) return;
+
+      const tile = e.target.closest(".tile");
+      if(!tile) return;
+      const id = tile.dataset.id;
+
+      const act = btn.getAttribute("data-act");
+      if(act === "plus") updateCount(id, +1);
+      if(act === "minus") updateCount(id, -1);
+      if(act === "remove"){
+        if(confirm("¿Eliminar este botón?")) removeButton(id);
+      }
+    });
+
+    // Init
+    load();
+    render();
+  </script>
+</body>
+</html>
