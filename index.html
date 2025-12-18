@@ -199,7 +199,7 @@
       display:flex;
       flex-direction:column;
       gap: 12px;
-      min-height: 0; /* FIX: evita layouts raros */
+      min-height: 0;
       user-select:none;
       -webkit-user-select:none;
       touch-action: manipulation;
@@ -251,7 +251,6 @@
       font-size: 11px;
     }
 
-    /* FIX: controles en fila limpia (sin superposición) */
     .controls{
       position:relative;
       display:grid;
@@ -279,7 +278,7 @@
     }
     .mini:active{ transform: scale(.97); background: rgba(255,255,255,.18); }
 
-    /* Eliminar estilo iPhone: aparece solo en modo edición (long press) */
+    /* delete badge (solo en modo edición) */
     .delete-badge{
       position:absolute;
       left: 10px;
@@ -305,7 +304,6 @@
       z-index: 5;
     }
 
-    /* Estado global de edición */
     .edit-mode .tile{
       animation: wiggle .18s ease-in-out infinite alternate;
     }
@@ -464,7 +462,7 @@
           <span id="itemsInfo">0 toques</span>
         </div>
         <div class="total" id="total">$0</div>
-        <div class="hint">Tip: mantené apretado cualquier botón para entrar en “modo borrar”.</div>
+        <div class="hint">Tip: mantené apretado cualquier tarjeta para entrar en “modo borrar”.</div>
       </div>
 
       <div class="sum-actions">
@@ -501,8 +499,8 @@
   <div class="toast" id="toast">Listo</div>
 
   <script>
-    const STORAGE_KEY = "qgc_buttons_v2";
-    const STORAGE_COUNTS_KEY = "qgc_counts_v2";
+    const STORAGE_KEY = "qgc_buttons_v3";
+    const STORAGE_COUNTS_KEY = "qgc_counts_v3";
 
     let buttons = [];
     let counts = {};
@@ -518,6 +516,42 @@
 
     let editMode = false;
     let editModeTimer = null;
+
+    // --- HAPTIC + CLICK ---
+    let audioCtx = null;
+
+    function clickSound(){
+      try{
+        if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const t = audioCtx.currentTime;
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+
+        // “click” corto tipo teclado
+        o.type = "square";
+        o.frequency.setValueAtTime(950, t);
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.08, t + 0.005);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.030);
+
+        o.connect(g);
+        g.connect(audioCtx.destination);
+
+        o.start(t);
+        o.stop(t + 0.035);
+      } catch(e){}
+    }
+
+    function haptic(){
+      try{
+        if(navigator.vibrate) navigator.vibrate(10);
+      } catch(e){}
+    }
+
+    function feedback(){
+      clickSound();
+      haptic();
+    }
 
     function showToast(msg){
       $toast.textContent = msg;
@@ -605,7 +639,6 @@
       if(editMode){
         $wrap.classList.add("edit-mode");
         showToast("Modo borrar (tocá ✕). Tocá afuera para salir.");
-        // Auto-salir después de 10s (para que no quede pegado)
         clearTimeout(editModeTimer);
         editModeTimer = setTimeout(()=> setEditMode(false), 10000);
       } else {
@@ -707,19 +740,17 @@
       showToast("Botón creado");
     }
 
-    // Long press para entrar en modo borrar
+    // Long press -> modo borrar
     function attachLongPress(tile){
       let pressTimer = null;
-      let moved = false;
 
       const start = (e) => {
-        moved = false;
-
-        // si tocan un botón (+/−), no activamos long press
         const isControl = e.target.closest("[data-act]");
         if(isControl) return;
 
         pressTimer = setTimeout(() => {
+          // feedback también al entrar en modo borrar
+          feedback();
           setEditMode(true);
         }, 450);
       };
@@ -729,39 +760,38 @@
         pressTimer = null;
       };
 
-      const move = () => {
-        moved = true;
-        cancel();
-      };
-
       tile.addEventListener("touchstart", start, { passive: true });
       tile.addEventListener("touchend", cancel);
       tile.addEventListener("touchcancel", cancel);
-      tile.addEventListener("touchmove", move);
+      tile.addEventListener("touchmove", cancel);
 
       tile.addEventListener("mousedown", start);
       tile.addEventListener("mouseup", cancel);
       tile.addEventListener("mouseleave", cancel);
-      tile.addEventListener("mousemove", () => { if(!moved) {} });
     }
 
     // Eventos
-    document.getElementById("addBtn").addEventListener("click", openSheet);
+    document.getElementById("addBtn").addEventListener("click", () => {
+      feedback();
+      openSheet();
+    });
+
     document.getElementById("resetBtn").addEventListener("click", () => {
       setEditMode(false);
+      feedback();
       if(confirm("¿Reiniciar conteos? (No borra tus botones)")) resetCounts();
     });
 
-    document.getElementById("closeSheet").addEventListener("click", closeSheet);
-    document.getElementById("cancelAdd").addEventListener("click", closeSheet);
-    document.getElementById("confirmAdd").addEventListener("click", addButtonFromInput);
+    document.getElementById("closeSheet").addEventListener("click", () => { feedback(); closeSheet(); });
+    document.getElementById("cancelAdd").addEventListener("click", () => { feedback(); closeSheet(); });
+    document.getElementById("confirmAdd").addEventListener("click", () => { feedback(); addButtonFromInput(); });
 
     $sheetBackdrop.addEventListener("click", (e) => {
-      if(e.target === $sheetBackdrop) closeSheet();
+      if(e.target === $sheetBackdrop){ feedback(); closeSheet(); }
     });
 
     $amountInput.addEventListener("keydown", (e) => {
-      if(e.key === "Enter") addButtonFromInput();
+      if(e.key === "Enter"){ feedback(); addButtonFromInput(); }
     });
 
     // Delegación grilla: + / − / delete (solo si editMode)
@@ -776,15 +806,22 @@
       const act = actBtn.getAttribute("data-act");
 
       if(act === "plus"){
-        if(!editMode) updateCount(id, +1);
+        if(!editMode){
+          feedback();
+          updateCount(id, +1);
+        }
         return;
       }
       if(act === "minus"){
-        if(!editMode) updateCount(id, -1);
+        if(!editMode){
+          feedback();
+          updateCount(id, -1);
+        }
         return;
       }
       if(act === "remove"){
-        if(!editMode) return; // solo en modo borrar
+        if(!editMode) return;
+        feedback();
         if(confirm("¿Eliminar este botón?")) removeButton(id);
         return;
       }
